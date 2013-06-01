@@ -1,0 +1,363 @@
+<meta http-equiv='content-type' content='charset=utf-8'>
+<script>
+var W=600;
+var H=450;
+var slideList=[];
+function $(id){return document.getElementById(id)}
+var FIRSTSLIDE=0;
+onload=function(){
+	onresize();
+	var arr=document.getElementsByTagName("slide");
+	for(var i=0;i<arr.length;i++)slideList.push(arr[i])
+	show(FIRSTSLIDE);
+	setInterval(checkVideoStop,100);
+}
+window.onresize=function(){
+	var main=$("main");
+	var element=main.firstChild;
+	if(!element)return;
+	element.style.position="fixed";
+	element.style.width=W;
+	element.style.height=H;
+	var scale=Math.min(innerWidth/W,innerHeight/H)
+	element.style.left=(innerWidth-scale*W)/2;
+	element.style.top=(innerHeight-scale*H)/2;
+	element.style.WebkitTransformOrigin="0 0";
+	element.style.WebkitTransform="scale("+scale+")";
+}
+var slideIndex=0;
+var video=null;
+function show(index){
+	var element=slideList[index];
+	if(!element)return;
+	slideIndex=index;
+	var main=$("main");
+	if(main.firstChild){
+		document.body.appendChild(main.removeChild(main.firstChild));
+	}
+	main.appendChild(element);
+	onresize();
+	if(video){video.index=0;video.pause();}
+	video=$("main").getElementsByTagName("video")[0];
+	if(video){
+		var attr=video.attributes;
+		var stop=[];
+		for(var i=0;i<attr.length;i++)if(attr[i].localName=='data-stop')stop=attr[i].value.split(",");
+		video.stop=stop;
+		video.index=0;
+		video.currentTime=stop.length?stop[0]:0;
+		video.play();
+	}
+}
+function checkVideoStop(){
+	if(video){
+		if(video.index+1<video.stop.length){
+			var t=video.stop[video.index+1];
+			if(video.currentTime>t){
+				video.pause();
+			}
+		}
+	}
+}
+
+window.onkeydown=function(e){
+	if(e.altKey&&0x30<=e.keyCode&&e.keyCode<=0x39){show(e.keyCode-0x30);}
+	else if(e.keyIdentifier=="Left"||e.keyIdentifier=="Up"){
+		if(!videoback())show(slideIndex-1);
+	}else if(e.keyCode==0x0D||e.keyIdentifier=="Right"||e.keyIdentifier=="Down"){
+		if(!videonext())show(slideIndex+1);
+	}else videoKey(e);
+}
+function videoback(){
+	if(!video)return false;
+	if(video.stop.length==0){
+		video.currentTime-=5;
+		if(video.currentTime<1)return false;
+		return true;
+	}
+	if(video.index==0)return false;
+	video.index--;
+	video.currentTime=video.stop[video.index];
+	video.play();
+	return true;
+}
+function videonext(){
+	if(!video)return false;
+	if(video.stop.length==0){
+		video.currentTime+=5;
+		if(video.duration-1<video.currentTime)return false;
+		return true;
+	}
+	if(video.index==video.stop.length-1)return false;
+	video.index++;
+	video.currentTime=video.stop[video.index];
+	video.play();
+	return true;
+}
+
+function videoKey(e){
+	if(!video)return;
+	var attr=video.attributes;
+	var stop=[];
+	for(var i=0;i<attr.length;i++)if(attr[i].localName=='data-stop')stop=attr[i].value.split(",");
+
+
+
+
+	switch(e.keyCode){
+		case 0x20:{
+			if(video.paused||video.ended)video.play();
+			else video.pause();
+		}return;
+		case 188:{
+			video.currentTime--;
+		}return;
+		case 190:{
+			video.currentTime++;
+		}return;
+	}
+	console.log(e.keyCode);
+}
+
+function arrow(x1,y1,x2,y2,size,width){
+	function line(x1,y1,x2,y2,w){
+		var dx=x2-x1,dy=y2-y1,r=Math.sqrt(dx*dx+dy*dy);
+		var t=Math.round(180/Math.PI*Math.atan2(dy,dx)*100)/100;
+
+		return "<div style='position:absolute;background:black;"+
+				"left:"+x1+";"+
+				"top:"+(y1-w/2)+";"+
+				"-webkit-transform:rotate("+t+"deg);"+
+				"width:"+r+";height:"+w+";-webkit-transform-origin:0 "+w/2+";border-radius:100px;'></div>";
+	}
+	var dx=x2-x1,dy=y2-y1,r=Math.sqrt(dx*dx+dy*dy);
+	if(!width)width=4;
+	document.write(line(x1,y1,x2,y2,width));
+	var w=width/r/2/Math.sqrt(2)
+	document.write(line(x2-size*dx/r-size*dy/r,y2-size*dy/r+size*dx/r,x2+w*dx+w*dy,y2+w*dy-w*dx,width));
+	document.write(line(x2-size*dx/r+size*dy/r,y2-size*dy/r-size*dx/r,x2+w*dx-w*dy,y2+w*dy+w*dx,width));
+}
+	
+
+</script>
+<style>
+slide{display:none;}
+body{width:100%;height:100%;overflow:hidden;font-family:'Marker Felt';margin:0;padding:0;background:black;}
+#main{
+	width:100%;height:100%;display:block;
+	background-size:100% 100%;
+}
+#main slide{display:block;
+	background:url(slideimg/bg.jpg);
+overflow:hidden;
+}
+center{width:600px;}
+center.middle{line-height:400px;}
+.abs{position:absolute;}
+.f12{font-size:12px;}
+.f14{font-size:14px;}
+.f16{font-size:16px;}
+.f18{font-size:18px;}
+.f20{font-size:20px;}
+.f22{font-size:22px;}
+.f24{font-size:24px;}
+.f26{font-size:26px;}
+.f28{font-size:28px;}
+.f30{font-size:30px;}
+.f32{font-size:32px;}
+.f34{font-size:34px;}
+.f36{font-size:36px;}
+.f38{font-size:38px;}
+.f40{font-size:40px;}
+.f50{font-size:50px;}
+.f60{font-size:60px;}
+.f80{font-size:80px;}
+.f100{font-size:100px;}
+.f120{font-size:120px;}
+.t{font-family:Times;}
+.o{font-family:Osaka;}
+</style>
+<div id='main'></div>
+<slide>
+	<img src="slideimg/logo_large.png" class='abs' style='left:50;top:50;width:500px;'>
+	<center class='abs f40' style='top:240;'>http:<span style='letter-spacing:-10px'>/</span>/screenx.tv/</center>
+	<center class='abs f40' style='top:280;'>http:<span style='letter-spacing:-10px'>/</span>/github.com/screenxtv</center>
+	<img src="slideimg/tompng.png"  class='abs' style='border-radius:8px;width:64;left:50;bottom:25;'>
+	<div class='abs f30' style='left:120;bottom:52;'>Tomoya Ishida</div>
+	<div class='abs f30' style='left:120;bottom:18;'>@tompng</div>
+
+	<img src="slideimg/yasulab.jpeg"  class='abs' style='border-radius:8px;width:64;left:310;bottom:25;'>
+	<div class='abs f30' style='left:380;bottom:52;'>Yohei Yasukawa</div>
+	<div class='abs f30' style='left:380;bottom:18;'>@yasulab</div>
+</slide>
+
+<slide>
+	<img src='slideimg/term.png' class='abs' style='width:500;left:50;top:20'>
+	<center class='abs f80' style='width:600;left:0;top:150;color:white;opacity:0.7;font-family:SynchroLET'>
+	  Terminal
+	</center>
+</slide>
+
+
+<slide>
+	<div class='abs f60' style='top:50;left:20'>Programming Scene</div>
+	<div class='abs' style='left:75;top:210;width:200;height:130;box-shadow:0 0 60px yellow'></div>
+	<img src="slideimg/t2.png" class='abs' style='left:50;top:190;width:250;'>
+	<img src="slideimg/safari.png" class='abs' style='right:100;bottom:210;width:120'>
+	<img src="slideimg/chrome.png" class='abs' style='right:40;bottom:110;width:120'>
+	<img src="slideimg/firefox.png" class='abs' style='right:100;bottom:10;width:120'>
+	<script>arrow(290,225,380,200,25,10);</script>
+	<script>arrow(290,275,435,275,25,10);</script>
+	<script>arrow(290,325,380,350,25,10);</script>
+</slide>
+
+
+<slide class='f60' style='background:black'>
+	<img src='slideimg/products.jpg' class='abs' style='height:450;left:-60;top:0;opacity:0.3;'>
+	<div class='abs f80' style='left:0;text-shadow:0 0 20px white,0 0 20px white,0 0 20px white;line-height:1.7em;'>
+	  
+	<center class='abs f120' style='width:600;left:0;top:150;color:red;'>What</center>
+	</div>
+</slide>
+
+<slide class='f60'>
+	<img src='slideimg/how.png' class='abs' style='height:450;left:0;top:0;'>
+	<div class='abs f80' style=';text-shadow:0 0 20px white,0 0 20px white,0 0 20px white;line-height:1.7em;'>
+	  
+	<center class='abs f120' style='width:600;left:0;top:150;color:red;'>How</center>
+	</div>
+</slide>
+
+
+
+<slide>
+	<center style='margin-top:30px;'>
+	  <!--<video src='slideimg/sxtv.m4v' style='width:600px'>-->
+	  <video src='slideimg/screenxtv-100.mov' style='width:600px'>
+	</center>
+</slide>
+
+<slide style='color:black;text-shadow:0 0 10px #ffa,0 0 10px #ffa,0 0 10px #ffa'>
+	<img src='slideimg/world.jpg' class='abs' style='top:-50;height:550;left:-100'>
+	<div class='abs' style='left:-200;top:-100;width:1000;height:200;background:rgba(0,0,0,0.5)'></div>
+	<center class='abs f60' style='left:0;margin-top:20px;width:600;color:white;text-shadow:0 0 10px black'>ScreenX TV Users</center>
+	<div class='abs f40' style='top:240;left:180'>Taiwan</div>
+	<div class='abs f40' style='top:180;left:220'>Japan</div>
+	<div class='abs f40' style='top:180;left:420'>America</div>
+</slide>
+
+
+<!--slide>
+	<div class='f100' style='margin-top:0px'>Why<br>ScreenX TV<br>is used?</div>
+</slide-->
+
+<slide class='f60' style='background:black'>
+	<img src='slideimg/u1.png' class='abs' style='height:220;left:0;top:0'>
+	<img src='slideimg/u2.png' class='abs' style='height:220;right:0;bottom:0'>
+	<div class='abs f80' style=';text-shadow:0 0 20px white,0 0 20px white,0 0 20px white;line-height:1.7em;'>
+	<!--div class='f60' style='font-style:italic;left:20'>ScreenX TV Users</div-->
+	<center class='abs f120' style='width:600;left:0;top:150;color:red;'>Why?</center>
+	</div>
+</slide>
+
+
+<slide>
+  <center class='f80' style='margin-top:20px;'>Usecases include</center>
+	<ul class='f40' style='padding-left:100px'>
+		<li style='line-height:2em;padding-left:20px;'>Collaborative Learning</li>
+		<li style='line-height:2em;padding-left:20px;'>Blog Plugins</li>
+		<li style='line-height:2em;padding-left:20px;'>Study Session</li>
+	</ul>
+</slide>
+
+<slide>
+  <center class='f80' style='margin-top:20px;'>Usecases include</center>
+	<ul class='f40' style='padding-left:100px'>
+		<li style='line-height:2em;padding-left:20px;opacity:1'>Collaborative Learning</li>
+		<li style='line-height:2em;padding-left:20px;opacity:0.2'>Blog Plugins</li>
+		<li style='line-height:2em;padding-left:20px;opacity:0.2'>Study Session</li>
+	</ul>
+</slide>
+
+
+<slide>
+	<img src='slideimg/ss.png' class='abs' style='left:0;top:20;width:600'>
+	<div class='abs' style='left:422;top:63;width:150;height:336;border:4px solid red;box-shadow:0 0 10px yellow,0 0 10px yellow inset;border-radius:20px;'></div>
+</slide>
+
+<slide>
+	<img src='slideimg/str1.png' class='abs' style='top:-100;width:340;left:130'>
+	<div class='abs' style='left:128;top:190;width:335;height:80;border:4px solid red;box-shadow:0 0 10px yellow,0 0 10px yellow inset;border-radius:20px;'></div>
+</slide>
+
+<slide>
+	<img src='slideimg/str2.png' class='abs' style='top:-240;width:340;left:130'>
+	<div class='abs' style='left:128;top:80;width:335;height:220;border:4px solid red;box-shadow:0 0 10px yellow,0 0 10px yellow inset;border-radius:20px;'></div>
+</slide>
+
+<slide>
+	<img src='slideimg/str3.png' class='abs' style='top:0;width:340;left:130'>
+	<div class='abs' style='left:128;top:95;width:335;height:160;border:4px solid red;box-shadow:0 0 10px yellow,0 0 10px yellow inset;border-radius:20px;'></div>
+</slide>
+
+<slide>
+  <center class='f80' style='margin-top:20px;'>Usecases include</center>
+	<ul class='f40' style='padding-left:100px'>
+		<li style='line-height:2em;padding-left:20px;opacity:0.2'>Collaborative Learning</li>
+		<li style='line-height:2em;padding-left:20px;opacity:1'>Blog Plugins</li>
+		<li style='line-height:2em;padding-left:20px;opacity:0.2'>Study Session</li>
+	</ul>
+</slide>
+
+<slide>
+	<center style='margin-top:30px;'>
+	  <video src='slideimg/blog-plugins-60.mov' style='width:600px'>
+	</center>
+</slide>
+
+<slide>
+  <center class='f80' style='margin-top:20px;'>Usecases include</center>
+	<ul class='f40' style='padding-left:100px'>
+		<li style='line-height:2em;padding-left:20px;opacity:0.2'>Collaborative Learning</li>
+		<li style='line-height:2em;padding-left:20px;opacity:0.2'>Blog Plugins</li>
+		<li style='line-height:2em;padding-left:20px;opacity:1'>Study Session</li>
+	</ul>
+</slide>
+
+<slide>
+  <img src='slideimg/rb1.jpg' class='abs' style='width:600;left:0;bottom:-50;'>
+  <div class='abs f80' style='left:50;top:20;text-shadow:0 0 10px white,0 0 10px white,0 0 10px white'>Study session</div>
+</slide>
+
+<slide>
+  <img src='slideimg/rb2.jpg' class='abs' style='width:600;left:0;bottom:0;'>
+  <div class='abs f80' style='left:50;top:20;text-shadow:0 0 10px white,0 0 10px white,0 0 10px white'>Study session</div>
+</slide>
+
+<slide>
+	<center class='f80' style='margin-top:20px;'>If interested in, </center><br>
+	<ul class='f40 abs' style='left:50;top:100px;'>
+	  <li style='line-height:2em;'>feel free to broadcast.</li>
+	  <li style='line-height:2em;'>check out GitHub repos.</li>
+	  <li style='line-height:2em;'>contact me to see production code.</li>
+	</ul>
+</slide>
+
+<slide>
+	<img src="slideimg/logo_large.png" class='abs' style='left:50;top:50;width:500px;'>
+	<center class='abs f40' style='top:240;'>http:<span style='letter-spacing:-10px'>/</span>/screenx.tv/</center>
+	<center class='abs f40' style='top:280;'>http:<span style='letter-spacing:-10px'>/</span>/github.com/screenxtv</center>
+
+	<img src="slideimg/tompng.png"  class='abs' style='border-radius:8px;width:64;left:50;bottom:25;'>
+	<div class='abs f30' style='left:120;bottom:52;'>Tomoya Ishida</div>
+	<div class='abs f30' style='left:120;bottom:18;'>@tompng</div>
+
+	<img src="slideimg/yasulab.jpeg"  class='abs' style='border-radius:8px;width:64;left:310;bottom:25;'>
+	<div class='abs f30' style='left:380;bottom:52;'>Yohei Yasukawa</div>
+	<div class='abs f30' style='left:380;bottom:18;'>@yasulab</div>
+
+</slide>
+
+
+
+<script>FIRSTSLIDE=0</script>
